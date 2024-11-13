@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { addItem } from "../slices/cartSlice";
 import { toast } from "react-toastify";
+import AddToCartButton from "./AddToCartButton";
 
 const Product = ({ product }) => {
   const dispatch = useDispatch();
@@ -38,12 +39,7 @@ const Product = ({ product }) => {
             </span>
           </div>
         </div>
-        <button
-          onClick={handleAddToCart}
-          className="bg-purple-600 text-white px-4 py-2 rounded-md shadow hover:bg-purple-700 transition duration-200 ease-in-out"
-        >
-          Add to Cart
-        </button>
+        <AddToCartButton onClick={handleAddToCart} />
       </div>
     </div>
   );
