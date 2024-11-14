@@ -1,31 +1,21 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import userRoutes from "./routes/userRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+import "dotenv/config";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.post("/create-payment-intent", async (req, res) => {
-  const { amount } = req.body;
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
-  try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100, // Amount in cents
-      currency: "usd",
-    });
+app.use("/api/users", userRoutes);
+app.use("/api/payments", paymentRoutes);
 
-    res.send({
-      clientSecret: paymentIntent.client_secret,
-    });
-  } catch (error) {
-    res.status(500).send({
-      error: error.message,
-    });
-  }
-});
-
-app.listen(3001, () => {
-  console.log("Server running on port 3001");
-});
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

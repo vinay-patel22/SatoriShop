@@ -1,4 +1,3 @@
-// src/hooks/useStripePayment.js
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { useState } from "react";
 
@@ -12,31 +11,37 @@ const useStripePayment = (onSuccess, onError) => {
 
     setLoading(true);
     try {
-      // Request to your backend to create the payment intent
-      const res = await fetch("http://localhost:3001/create-payment-intent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ amount }), // Replace with actual amount
-      });
+      // Request to backend to create the payment intent
+      const response = await fetch(
+        "http://localhost:3001/api/payments/create-payment-intent",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount }), // Amount in cents
+        }
+      );
 
-      const { clientSecret } = await res.json();
+      if (!response.ok) {
+        throw new Error("Failed to create payment intent");
+      }
+
+      const { clientSecret } = await response.json();
 
       // Confirm card payment
       const cardElement = elements.getElement(CardElement);
-      const paymentResult = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardElement,
-        },
-      });
-
-      if (paymentResult.error) {
-        onError(paymentResult.error.message);
-      } else {
-        if (paymentResult.paymentIntent.status === "succeeded") {
-          onSuccess();
+      const { error, paymentIntent } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: { card: cardElement },
         }
+      );
+
+      if (error) {
+        onError(error.message);
+      } else if (paymentIntent.status === "succeeded") {
+        onSuccess();
+      } else {
+        onError("Payment not completed");
       }
     } catch (error) {
       onError(error.message);
@@ -47,8 +52,8 @@ const useStripePayment = (onSuccess, onError) => {
 
   return {
     handlePayment,
-    stripe, // Return stripe to be used in the component
-    elements, // Return elements to be used in the component
+    stripe,
+    elements,
     loading,
   };
 };

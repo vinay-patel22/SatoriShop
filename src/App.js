@@ -11,6 +11,11 @@ import "react-toastify/dist/ReactToastify.css";
 import Checkout from "./components/Checkout";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import UserProfile from "./components/UserProfile";
+import AboutUs from "./components/AboutUs";
+import Contact from "./components/ContactUs";
+import Privacy from "./components/Privacy";
+import Terms from "./components/Terms";
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
@@ -27,7 +32,11 @@ function App() {
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
-
+            <Route path="/user-profile" element={<UserProfile />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
