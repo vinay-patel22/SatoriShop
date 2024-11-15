@@ -36,16 +36,15 @@ const UserProfile = () => {
     fetchUserData();
   }, [userId, token, navigate]);
 
-  // Handle user update
   const handleUpdateUser = async () => {
     try {
       setIsLoading(true);
       const updatedData = { name: userData.name, email: userData.email };
       if (newPassword) {
-        updatedData.password = newPassword; // Add password only if provided
+        updatedData.password = newPassword;
       }
 
-      await updateUser(userId, updatedData, token); // Update user details
+      await updateUser(userId, updatedData, token);
       alert("Profile updated successfully!");
       setNewPassword("");
     } catch (error) {

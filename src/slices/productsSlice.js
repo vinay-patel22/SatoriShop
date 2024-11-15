@@ -12,17 +12,16 @@ const productsSlice = createSlice({
       state.items = action.payload;
       state.status = "succeeded";
     },
-    fetchProductsFailure(state, action) {
+    fetchProductsFailure: (state, action) => {
       state.status = "failed";
       state.error = action.payload;
     },
-    setLoading(state) {
+    setLoading: (state) => {
       state.status = "loading";
     },
   },
 });
 
-export const { fetchProductsFailure, fetchProductsSuccess, setLoading } =
+export const { fetchProductsSuccess, fetchProductsFailure, setLoading } =
   productsSlice.actions;
-
 export default productsSlice.reducer;

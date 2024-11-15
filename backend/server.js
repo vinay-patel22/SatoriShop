@@ -1,9 +1,10 @@
+import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
-import "dotenv/config";
+import productRoutes from "./routes/productRoutes.js";
 
 const app = express();
 app.use(cors());
@@ -16,6 +17,7 @@ mongoose
 
 app.use("/api/users", userRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/products", productRoutes);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

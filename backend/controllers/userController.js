@@ -1,11 +1,10 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
-
 import dotenv from "dotenv";
-
+import bcrypt from "bcrypt";
 dotenv.config();
 
-// Create a new user
+// Create a new user (signup)
 export const signup = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -22,7 +21,6 @@ export const signup = async (req, res) => {
   }
 };
 
-// Log in a user
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -66,10 +64,15 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// Update a user
 export const updateUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    const updates = req.body;
+    if (updates.password) {
+      const salt = await bcrypt.genSalt(12);
+      updates.password = await bcrypt.hash(updates.password, salt);
+    }
+
+    const user = await User.findByIdAndUpdate(req.params.id, updates, {
       new: true,
       runValidators: true,
     });

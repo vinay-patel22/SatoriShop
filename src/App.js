@@ -16,6 +16,7 @@ import AboutUs from "./components/AboutUs";
 import Contact from "./components/ContactUs";
 import Privacy from "./components/Privacy";
 import Terms from "./components/Terms";
+import AdminProductForm from "./components/AdminProductForm";
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
@@ -34,6 +35,7 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/user-profile" element={<UserProfile />} />
             <Route path="/about" element={<AboutUs />} />
+            <Route path="/admin" element={<AdminProductForm />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
