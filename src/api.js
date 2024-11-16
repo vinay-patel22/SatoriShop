@@ -8,7 +8,6 @@ export const signup = async (userData) => {
   return response;
 };
 
-// Save token to localStorage after login/signup
 export const login = async (userData) => {
   const response = await axios.post(`${API_URL}/users/login`, userData);
   localStorage.setItem("token", response.data.token); // Store JWT

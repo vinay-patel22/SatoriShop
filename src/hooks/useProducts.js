@@ -1,69 +1,104 @@
 import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchProductsSuccess,
-  fetchProductsFailure,
-  setLoading,
-} from "../slices/productsSlice";
+import axios from "axios";
 
-const useProducts = (category) => {
-  const dispatch = useDispatch();
-  const { items, status, error } = useSelector((state) => state.products);
+const useProducts = (selectedCategory) => {
+  const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
+  const [status, setStatus] = useState("idle");
+  const [error, setError] = useState(null);
   const [query, setQuery] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6; // Number of products per page
+  const [itemsPerPage] = useState(9); // Adjust page size here if needed
 
+  // Fetch products from both APIs
   useEffect(() => {
     const fetchProducts = async () => {
-      dispatch(setLoading());
+      setStatus("loading");
       try {
-        // Fetch products based on category (if selected)
-        const url = category
-          ? `https://fakestoreapi.com/products/category/${category}`
-          : "https://fakestoreapi.com/products";
-        const response = await fetch(url);
-        const data = await response.json();
-        dispatch(fetchProductsSuccess(data));
-        setFilteredItems(data);
+        // Fetch from both APIs
+        const backendPromise = axios.get("http://localhost:3001/api/products");
+        const onlinePromise = fetch("https://fakestoreapi.com/products").then(
+          (res) => res.json()
+        );
+
+        const [backendResponse, onlineResponse] = await Promise.all([
+          backendPromise,
+          onlinePromise,
+        ]);
+
+        // Format Free API products
+        const formattedOnlineResponse = onlineResponse.map((product) => ({
+          id: product.id,
+          name: product.title,
+          price: product.price,
+          description: product.description,
+          image: product.image,
+          rating: product.rating?.rate || 0,
+          count: product.rating?.count || 0,
+        }));
+
+        // Format Backend API products
+        const formattedBackendResponse = backendResponse.data.map(
+          (product) => ({
+            id: product._id,
+            name: product.name,
+            price: product.price,
+            description: product.description,
+            image: product.images[0] || "", // Use first image
+            rating: product.rating || 0,
+            count: 0, // Backend doesn't have count, default to 0
+          })
+        );
+
+        // Combine both sets of products
+        const combinedData = [
+          ...formattedBackendResponse,
+          ...formattedOnlineResponse,
+        ];
+
+        setItems(combinedData);
+        setFilteredItems(combinedData);
+        setStatus("succeeded");
       } catch (err) {
-        dispatch(fetchProductsFailure(err.message));
+        setStatus("failed");
+        setError(err.message);
       }
     };
 
     fetchProducts();
-  }, [dispatch, category]);
+  }, []);
 
-  // Pagination calculation
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const paginatedItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+  // Handle pagination logic
+  const paginatedItems = filteredItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
-  const handleSearch = (query) => {
-    setQuery(query);
+  // Filter and search logic
+  const handleSearch = (searchQuery) => {
+    setQuery(searchQuery);
     setHasSearched(true);
-    setCurrentPage(1); // Reset to first page when searching
-
-    if (query.trim() === "") {
-      setFilteredItems(items);
-      setHasSearched(false);
-    } else {
-      const lowercasedQuery = query.toLowerCase();
-      const filtered = items.filter((product) =>
-        Object.values(product).some((value) =>
-          value.toString().toLowerCase().includes(lowercasedQuery)
-        )
+    if (searchQuery) {
+      const filtered = items.filter((item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredItems(filtered);
+    } else {
+      setFilteredItems(items);
     }
   };
 
-  const handleSort = (order) => {
-    const sortedItems = [...filteredItems].sort((a, b) =>
-      order === "asc" ? a.price - b.price : b.price - a.price
-    );
+  // Sorting logic
+  const handleSort = (sortOption) => {
+    let sortedItems = [...filteredItems];
+    if (sortOption === "asc") {
+      sortedItems.sort((a, b) => a.price - b.price);
+    } else if (sortOption === "desc") {
+      sortedItems.sort((a, b) => b.price - a.price);
+    }
     setFilteredItems(sortedItems);
   };
 
@@ -71,12 +106,9 @@ const useProducts = (category) => {
     setFilteredItems(items);
     setQuery("");
     setHasSearched(false);
-    setCurrentPage(1);
   };
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
+  const handlePageChange = (page) => setCurrentPage(page);
 
   return {
     items,

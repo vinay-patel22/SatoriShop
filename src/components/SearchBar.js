@@ -10,6 +10,7 @@ const SearchBar = ({ onSearch, suggestions }) => {
     setQuery(value);
     if (value.trim() === "") {
       setShowSuggestions(true);
+      onSearch(""); // Clear the search query in the parent component
     } else {
       onSearch(value);
       setShowSuggestions(true);
@@ -17,8 +18,8 @@ const SearchBar = ({ onSearch, suggestions }) => {
   };
 
   const handleSuggestionClick = (suggestion) => {
-    setQuery(suggestion.title);
-    onSearch(suggestion.title);
+    setQuery(suggestion.name);
+    onSearch(suggestion.name);
     setShowSuggestions(false);
   };
 
@@ -29,7 +30,7 @@ const SearchBar = ({ onSearch, suggestions }) => {
   };
 
   const filteredSuggestions = suggestions.filter((product) =>
-    product.title.toLowerCase().includes(query.toLowerCase())
+    product.name?.toLowerCase().includes(query.toLowerCase())
   );
 
   return (
@@ -57,7 +58,7 @@ const SearchBar = ({ onSearch, suggestions }) => {
               className="p-3 cursor-pointer hover:bg-gray-100 transition duration-200 ease-in-out"
               onClick={() => handleSuggestionClick(suggestion)}
             >
-              {suggestion.title}
+              {suggestion.name}
             </li>
           ))}
         </ul>

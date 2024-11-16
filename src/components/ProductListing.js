@@ -1,52 +1,71 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import {
-  fetchProductsSuccess,
-  fetchProductsFailure,
-  setLoading,
-} from "../slices/productsSlice";
+import React, { useState } from "react";
+import Product from "./Product";
+import SearchBar from "./SearchBar";
+import FilterOptions from "./FilterOptions";
+import Pagination from "./Pagination";
+import useProducts from "../hooks/useProducts";
+import CategoryList from "./CategoryList";
 
 const ProductListing = () => {
-  const dispatch = useDispatch();
-  const { items, status, error } = useSelector((state) => state.products);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      dispatch(setLoading());
-      try {
-        const response = await axios.get("http://localhost:3001/api/products");
-        dispatch(fetchProductsSuccess(response.data));
-      } catch (err) {
-        dispatch(fetchProductsFailure(err.message));
-      }
-    };
+  const {
+    items,
+    filteredItems,
+    status,
+    error,
+    query,
+    hasSearched,
+    currentPage,
+    paginatedItems,
+    totalPages,
+    handleSearch,
+    handleSort,
+    handleReset,
+    handlePageChange,
+  } = useProducts(selectedCategory);
 
-    fetchProducts();
-  }, [dispatch]);
+  if (status === "loading") {
+    return <p className="text-center text-gray-700 mt-4">Loading...</p>;
+  }
 
-  if (status === "loading") return <p>Loading...</p>;
-  if (status === "failed") return <p>Error: {error}</p>;
+  if (status === "failed") {
+    return <p className="text-center text-red-500 mt-4">Error: {error}</p>;
+  }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-      {items.map((product) => (
-        <div key={product._id} className="border p-4">
-          <h2 className="text-xl font-bold">{product.name}</h2>
-          <p>{product.description}</p>
-          <p>${product.price}</p>
+    <>
+      <div className="p-2 m-2 mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+          <SearchBar onSearch={handleSearch} suggestions={items} />
+          <FilterOptions onSort={handleSort} onReset={handleReset} />
+        </div>
+        <CategoryList onCategorySelect={setSelectedCategory} />
+      </div>
 
-          {/* Check if product has images and display the first one */}
-          {product.images && product.images.length > 0 && (
-            <img
-              src={product.images[0]}
-              alt={product.name}
-              className="w-full h-auto object-cover"
+      {filteredItems.length === 0 && hasSearched ? (
+        <p className="text-center text-gray-500 mt-4">
+          No products available...
+        </p>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+            {paginatedItems.map((product) => (
+              <Product key={product.id} product={product} />
+            ))}
+          </div>
+
+          {/* Render Pagination if there are multiple pages */}
+          {totalPages > 1 && (
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
             />
           )}
-        </div>
-      ))}
-    </div>
+        </>
+      )}
+    </>
   );
 };
 
