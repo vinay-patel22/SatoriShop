@@ -13,7 +13,7 @@ const useStripePayment = (onSuccess, onError) => {
     try {
       // Request to backend to create the payment intent
       const response = await fetch(
-        "http://localhost:3001/api/payments/create-payment-intent",
+        "http://localhost:5000/api/payments/create-payment-intent",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

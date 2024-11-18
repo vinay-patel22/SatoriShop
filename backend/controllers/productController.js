@@ -1,5 +1,6 @@
 import Product from "../models/Product.js";
 import cloudinary from "../config/cloudinaryConfig.js";
+import mongoose from "mongoose";
 
 export const addProduct = async (req, res) => {
   try {
@@ -70,5 +71,28 @@ export const getProducts = async (req, res) => {
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+export const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // console.log("Fetching product with ID:", id);
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      // console.log("Invalid product ID:", id);
+      return res.status(400).json({ error: "Invalid product ID" });
+    }
+
+    const product = await Product.findById(id);
+    if (!product) {
+      // console.log("Product not found:", id);
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    res.status(200).json(product);
+  } catch (error) {
+    // console.error("Error fetching product:", error);
+    res.status(500).json({ error: "Failed to fetch product" });
   }
 };

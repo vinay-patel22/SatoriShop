@@ -17,7 +17,7 @@ const useProducts = (selectedCategory) => {
       setStatus("loading");
       try {
         // Fetch from both APIs
-        const backendPromise = axios.get("http://localhost:3001/api/products");
+        const backendPromise = axios.get("http://localhost:5000/api/products");
         const onlinePromise = fetch("https://fakestoreapi.com/products").then(
           (res) => res.json()
         );
