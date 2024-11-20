@@ -1,4 +1,3 @@
-// src/hooks/useCheckout.js
 import { useState } from "react";
 
 const useCheckout = () => {

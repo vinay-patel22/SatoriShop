@@ -1,7 +1,6 @@
-// src/components/OrderSummary.jsx
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { adjustQuantity } from "../slices/cartSlice"; // Adjust the import path as needed
+import { adjustQuantity } from "../slices/cartSlice";
 
 const OrderSummary = () => {
   const cartItems = useSelector((state) => state.cart.items);
@@ -27,7 +26,7 @@ const OrderSummary = () => {
         {cartItems.map((item) => (
           <li key={item.id} className="flex items-center border-b py-4">
             <img
-              src={item.image} // Assuming image URL is available in item
+              src={item.image}
               alt={item.title}
               className="w-16 h-16 object-cover rounded mr-4"
             />

@@ -1,4 +1,3 @@
-// src/components/Checkout.jsx
 import React from "react";
 import OrderSummary from "./OrderSummary";
 import DeliveryForm from "./DeliveryForm";

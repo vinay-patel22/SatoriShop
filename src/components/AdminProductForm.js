@@ -17,7 +17,7 @@ const AdminProductForm = () => {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
 
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
   const MAX_IMAGE_COUNT = 5;
@@ -71,7 +71,7 @@ const AdminProductForm = () => {
       return;
     }
 
-    setLoading(true); // Show the loader when starting to submit
+    setLoading(true);
     const formDataToSubmit = new FormData();
     Object.keys(formData).forEach((key) => {
       formDataToSubmit.append(key, formData[key]);
@@ -86,24 +86,24 @@ const AdminProductForm = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      setLoading(false); // Hide loader when request completes
+      setLoading(false);
       toast.success("Product added successfully!");
       setFormData({ name: "", price: "", description: "", rating: 0 });
       setImages([]);
       setErrors({});
-      setShowModal(true); // Show the modal after successful submission
+      setShowModal(true);
     } catch (error) {
-      setLoading(false); // Hide loader on error
+      setLoading(false);
       toast.error("An error occurred while saving the product.");
     }
   };
 
   const handleAddMoreProducts = () => {
-    setShowModal(false); // Hide modal and allow user to add more products
+    setShowModal(false);
   };
 
   const handleLater = () => {
-    navigate("/"); // Redirect to the homepage
+    navigate("/");
   };
 
   return (
@@ -207,7 +207,6 @@ const AdminProductForm = () => {
           </p>
         </div>
 
-        {/* Show loader while submitting */}
         {loading ? (
           <div className="flex justify-center">
             <ClipLoader color={"#6b46c1"} loading={loading} size={50} />
@@ -222,7 +221,6 @@ const AdminProductForm = () => {
         )}
       </form>
 
-      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full space-y-4">
@@ -250,7 +248,6 @@ const AdminProductForm = () => {
         </div>
       )}
 
-      {/* Toast Notifications */}
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );

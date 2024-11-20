@@ -10,7 +10,7 @@ export const signup = async (userData) => {
 
 export const login = async (userData) => {
   const response = await axios.post(`${API_URL}/users/login`, userData);
-  localStorage.setItem("token", response.data.token); // Store JWT
+  localStorage.setItem("token", response.data.token);
   return response;
 };
 

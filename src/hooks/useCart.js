@@ -1,4 +1,3 @@
-// src/hooks/useCart.js
 import { useDispatch, useSelector } from "react-redux";
 import { adjustQuantity, clearCart, removeItem } from "../slices/cartSlice";
 import { toast } from "react-toastify";

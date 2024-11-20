@@ -6,6 +6,9 @@ import Pagination from "./Pagination";
 import useProducts from "../hooks/useProducts";
 import CategoryList from "./CategoryList";
 
+const LOADING_MESSAGE = "Loading...";
+const ERROR_MESSAGE = "Error: ";
+
 const ProductListing = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -26,11 +29,28 @@ const ProductListing = () => {
   } = useProducts(selectedCategory);
 
   if (status === "loading") {
-    return <p className="text-center text-gray-700 mt-4">Loading...</p>;
+    return (
+      <div className="flex justify-center items-center mt-4">
+        {/* Consider adding a spinner component here */}
+        <p className="text-center text-gray-700">{LOADING_MESSAGE}</p>
+      </div>
+    );
   }
 
   if (status === "failed") {
-    return <p className="text-center text-red-500 mt-4">Error: {error}</p>;
+    return (
+      <div className="text-center mt-4">
+        <p className="text-red-500">
+          {ERROR_MESSAGE} {error}
+        </p>
+        <button
+          onClick={() => handleReset()}
+          className="mt-2 text-blue-600 underline"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -55,7 +75,6 @@ const ProductListing = () => {
             ))}
           </div>
 
-          {/* Render Pagination if there are multiple pages */}
           {totalPages > 1 && (
             <Pagination
               totalPages={totalPages}

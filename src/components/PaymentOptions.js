@@ -1,4 +1,3 @@
-// src/components/PaymentOptions.jsx
 import React from "react";
 
 const PaymentOptions = ({ onSelectPaymentOption }) => {

@@ -18,7 +18,7 @@ const UserProfile = () => {
 
   useEffect(() => {
     if (!token || !userId) {
-      navigate("/login"); // Redirect to login if no valid token
+      navigate("/login");
       return;
     }
 

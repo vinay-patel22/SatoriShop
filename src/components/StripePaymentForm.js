@@ -1,4 +1,3 @@
-// src/components/StripePaymentForm.jsx
 import React from "react";
 import { CardElement } from "@stripe/react-stripe-js";
 import useStripePayment from "../hooks/useStripePayment";
@@ -11,7 +10,7 @@ const StripePaymentForm = ({ onSuccess, onError }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handlePayment(1000); // Replace with actual amount
+    handlePayment(1000);
   };
 
   return (

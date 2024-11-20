@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import CompanyLogo from "../images/CompanyLogo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../api";
+import CompanyLogo from "../images/CompanyLogo.png";
 
-// Yup validation schema for login form
 const validationSchema = Yup.object({
   email: Yup.string()
     .email("Invalid email address")
@@ -15,17 +14,49 @@ const validationSchema = Yup.object({
     .required("Password is required"),
 });
 
+const InputField = ({ name, type, placeholder, errors, touched }) => (
+  <div className="mb-6">
+    <label
+      htmlFor={name}
+      className="block text-gray-700 text-sm font-medium mb-2"
+    >
+      {placeholder}
+    </label>
+    <Field
+      name={name}
+      type={type}
+      placeholder={placeholder}
+      className={`w-full px-4 py-2 border ${
+        errors[name] && touched[name] ? "border-red-500" : "border-gray-300"
+      } rounded-md shadow-sm focus:outline-none focus:ring-2 ${
+        errors[name] && touched[name]
+          ? "focus:ring-red-500"
+          : "focus:ring-purple-500"
+      } transition duration-200 ease-in-out`}
+    />
+    <ErrorMessage
+      name={name}
+      component="div"
+      className="text-red-500 text-sm mt-1"
+    />
+  </div>
+);
+
 const LoginForm = () => {
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (values) => {
+    setLoading(true);
     try {
       const response = await login(values);
       localStorage.setItem("token", response.data.token);
       navigate("/");
     } catch (err) {
-      setError(err.response.data.message);
+      setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,6 +69,9 @@ const LoginForm = () => {
         <h2 className="text-3xl font-extrabold text-gray-800 mb-6 text-center">
           Log in to your account
         </h2>
+        {error && (
+          <div className="text-red-500 text-sm mb-4 text-center">{error}</div>
+        )}
         <Formik
           initialValues={{ email: "", password: "" }}
           validationSchema={validationSchema}
@@ -45,65 +79,20 @@ const LoginForm = () => {
         >
           {({ errors, touched }) => (
             <Form>
-              {/* Email Field */}
-              <div className="mb-6">
-                <label
-                  htmlFor="email"
-                  className="block text-gray-700 text-sm font-medium mb-2"
-                >
-                  Email address
-                </label>
-                <Field
-                  name="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  className={`w-full px-4 py-2 border ${
-                    errors.email && touched.email
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  } rounded-md shadow-sm focus:outline-none focus:ring-2 ${
-                    errors.email && touched.email
-                      ? "focus:ring-red-500"
-                      : "focus:ring-purple-500"
-                  } transition duration-200 ease-in-out`}
-                />
-                <ErrorMessage
-                  name="email"
-                  component="div"
-                  className="text-red-500 text-sm mt-1"
-                />
-              </div>
-
-              {/* Password Field */}
-              <div className="mb-6">
-                <label
-                  htmlFor="password"
-                  className="block text-gray-700 text-sm font-medium mb-2"
-                >
-                  Password
-                </label>
-                <Field
-                  name="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  className={`w-full px-4 py-2 border ${
-                    errors.password && touched.password
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  } rounded-md shadow-sm focus:outline-none focus:ring-2 ${
-                    errors.password && touched.password
-                      ? "focus:ring-red-500"
-                      : "focus:ring-purple-500"
-                  } transition duration-200 ease-in-out`}
-                />
-                <ErrorMessage
-                  name="password"
-                  component="div"
-                  className="text-red-500 text-sm mt-1"
-                />
-              </div>
-
-              {/* Forgot Password Link */}
+              <InputField
+                name="email"
+                type="email"
+                placeholder="Email address"
+                errors={errors}
+                touched={touched}
+              />
+              <InputField
+                name="password"
+                type="password"
+                placeholder="Password"
+                errors={errors}
+                touched={touched}
+              />
               <div className="flex justify-end mb-6">
                 <Link
                   to="/forgot-password"
@@ -112,16 +101,15 @@ const LoginForm = () => {
                   Forgot password?
                 </Link>
               </div>
-
-              {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full py-3 px-4 bg-purple-600 text-white font-semibold rounded-md shadow-lg hover:bg-purple-700 transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500"
+                disabled={loading}
+                className={`w-full py-3 px-4 ${
+                  loading ? "bg-gray-400" : "bg-purple-600"
+                } text-white font-semibold rounded-md shadow-lg hover:bg-purple-700 transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500`}
               >
-                Log in
+                {loading ? "Logging In..." : "Log in"}
               </button>
-
-              {/* Not a Member */}
               <div className="mt-6 text-center text-gray-600">
                 <p>
                   Not a member?{" "}
