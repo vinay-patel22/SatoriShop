@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Link, useNavigate } from "react-router-dom";
-import { login } from "../api";
+import { useDispatch } from "react-redux";
+import { loginUser } from "../slices/userSlice";
 import CompanyLogo from "../images/CompanyLogo.png";
 
 const validationSchema = Yup.object({
@@ -46,15 +47,16 @@ const LoginForm = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
-      const response = await login(values);
-      localStorage.setItem("token", response.data.token);
+      const response = await dispatch(loginUser(values)).unwrap(); // Use unwrap to get the response
+      localStorage.setItem("token", response.token);
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      setError(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
