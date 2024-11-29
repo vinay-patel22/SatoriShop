@@ -4,7 +4,7 @@ import { FaThLarge } from "react-icons/fa";
 import { GiClothes, GiDiamondRing, GiSmartphone } from "react-icons/gi";
 
 const CategoryList = ({ onCategorySelect }) => {
-  const { categories, loading, error } = useCategories();
+  const { categories = [], loading, error } = useCategories(); // Default to empty array
 
   const categoryIcons = {
     "men's clothing": <GiClothes className="inline-block mr-2 text-xl" />,
@@ -32,22 +32,25 @@ const CategoryList = ({ onCategorySelect }) => {
       </h2>
       <div className="flex flex-wrap justify-center">
         <button
-          onClick={() => onCategorySelect(null)}
+          onClick={() => onCategorySelect?.(null)} // Optional chaining for callback
           className="flex items-center px-5 py-3 border rounded-full mr-4 mb-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold hover:from-blue-600 hover:to-purple-700 shadow-lg transform transition-all duration-300 hover:scale-105"
         >
           <FaThLarge className="inline-block mr-2 text-xl" />
           All Products
         </button>
-        {categories.map((category) => (
+        {/* Render category buttons */}
+        {categories?.map((category) => (
           <button
             key={category}
-            onClick={() => onCategorySelect(category)}
+            onClick={() => onCategorySelect?.(category)} // Optional chaining for callback
             className="flex items-center px-5 py-3 border rounded-full mr-4 mb-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold hover:from-green-500 hover:to-blue-600 shadow-lg transform transition-all duration-300 hover:scale-105"
           >
+            {/* Fallback to generic icon if category is missing */}
             {categoryIcons[category] || (
               <FaThLarge className="inline-block mr-2 text-xl" />
             )}
-            {category.charAt(0).toUpperCase() + category.slice(1)}
+            {category?.charAt(0).toUpperCase() + category?.slice(1) ||
+              "Unknown"}
           </button>
         ))}
       </div>

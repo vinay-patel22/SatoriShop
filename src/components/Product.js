@@ -5,20 +5,29 @@ import { toast } from "react-toastify";
 import { addItem } from "../slices/cartSlice";
 import AddToCartButton from "./AddToCartButton";
 
-const Product = ({ product }) => {
+const Product = ({ product = {} }) => {
   const dispatch = useDispatch();
 
-  const id = product.id || product._id;
-  const name = product.name || product.title;
-  const image = product.image || product.images?.[0];
-  const description = product.description || "No description available";
-  const price = product.price || 0.0;
-  const rating = product.rating?.rate || product.rating || "No rating";
-  const reviewCount = product.rating?.count || 0;
+  // Safely destructure product properties with defaults
+  const {
+    id = product._id || "unknown",
+    name = product.name || product.title || "Unnamed Product",
+    image = product.image ||
+      product.images?.[0] ||
+      "https://via.placeholder.com/150",
+    description = product.description || "No description available",
+    price = product.price || 0.0,
+    rating = product.rating?.rate || product.rating || "No rating",
+    reviewCount = product.rating?.count || 0,
+  } = product;
 
   const handleAddToCart = () => {
-    dispatch(addItem(product));
-    toast.success("Item added to cart!");
+    if (id && name) {
+      dispatch(addItem(product));
+      toast.success(`${name} added to cart!`);
+    } else {
+      toast.error("Unable to add item to cart. Invalid product data.");
+    }
   };
 
   return (
@@ -30,24 +39,29 @@ const Product = ({ product }) => {
             src={image}
             alt={name}
             className="w-full h-full object-contain"
+            onError={(e) => (e.target.src = "https://via.placeholder.com/150")} // Fallback for image error
           />
         </div>
       </Link>
 
       <div className="p-4 flex flex-col justify-between h-60">
         <div>
+          {/* Safely render product name and description */}
           <h3 className="text-lg font-semibold text-gray-800 mb-2 truncate">
             {name}
           </h3>
           <p className="text-gray-600 text-sm mb-4 truncate">{description}</p>
         </div>
         <div className="flex items-center mb-10">
+          {/* Safely format price */}
           <span className="text-xl font-bold text-gray-800">
             ${price.toFixed(2)}
           </span>
           <div className="ml-auto text-gray-500 text-sm">
+            {/* Safely display rating and review count */}
             <span>
-              Rating: {rating} ({reviewCount} reviews)
+              Rating: {typeof rating === "number" ? rating.toFixed(1) : rating}{" "}
+              ({reviewCount} reviews)
             </span>
           </div>
         </div>

@@ -8,14 +8,14 @@ import CartActions from "./CartActions";
 const Cart = () => {
   const navigate = useNavigate();
   const {
-    cartItems,
+    cartItems = [], // Ensure `cartItems` defaults to an empty array if undefined
     handleRemove,
     handleQuantityChange,
     handleClearCart,
     calculateTotal,
-  } = useCart();
+  } = useCart() || {}; // Safely destructure `useCart` to handle potential undefined returns
 
-  if (cartItems.length === 0) {
+  if (cartItems?.length === 0) {
     return (
       <div className="container mx-auto p-4 text-center">
         <p className="text-xl font-bold text-gray-700">Your cart is empty</p>
@@ -35,9 +35,9 @@ const Cart = () => {
       <div className="container mx-auto p-4">
         <h2 className="text-2xl font-bold mb-4">Your Cart</h2>
         <ul>
-          {cartItems.map((item) => (
+          {cartItems?.map((item) => (
             <CartItem
-              key={item.id}
+              key={item?.id} // Safely access `item.id`
               item={item}
               onRemove={handleRemove}
               onQuantityChange={handleQuantityChange}
@@ -45,9 +45,9 @@ const Cart = () => {
           ))}
         </ul>
         <CartActions
-          total={calculateTotal()}
+          total={calculateTotal?.() || 0} // Safely invoke `calculateTotal`
           onClearCart={handleClearCart}
-          onCheckout={() => navigate("/checkout")}
+          onCheckout={() => navigate?.("/checkout")} // Safely invoke `navigate`
         />
         <Link
           to="/"

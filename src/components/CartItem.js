@@ -1,36 +1,52 @@
 import React from "react";
 
 const CartItem = ({ item, onRemove, onQuantityChange }) => {
+  // Destructure and safely access properties with defaults
+  const {
+    id,
+    image = "",
+    title = "Unknown Product",
+    price = 0,
+    quantity = 1,
+  } = item || {};
+
   return (
     <li
-      key={item.id}
+      key={id}
       className="flex items-center mb-4 border-b border-gray-300 pb-4"
     >
+      {/* Safely render the image */}
       <img
-        src={item.image}
-        alt={item.title}
+        src={image || "https://via.placeholder.com/64"} // Fallback to placeholder image
+        alt={title}
         className="w-16 h-16 object-fill mr-4"
       />
       <div className="flex-grow">
-        <h3 className="text-lg font-semibold">{item.title}</h3>
-        <p className="text-gray-600">${item.price.toFixed(2)}</p>
+        {/* Safely render the title */}
+        <h3 className="text-lg font-semibold">{title}</h3>
+        {/* Format price safely */}
+        <p className="text-gray-600">${price.toFixed(2)}</p>
         <div className="flex items-center mt-2">
+          {/* Decrease Quantity Button */}
           <button
-            onClick={() => onQuantityChange(item.id, item.quantity - 1)}
-            disabled={item.quantity <= 1}
-            className="bg-purple-600 text-white px-2 py-1 rounded-md shadow hover:bg-purple-700 transition duration-200 ease-in-out"
+            onClick={() => onQuantityChange?.(id, quantity - 1)} // Optional chaining for callback
+            disabled={quantity <= 1} // Disable if quantity is 1 or less
+            className="bg-purple-600 text-white px-2 py-1 rounded-md shadow hover:bg-purple-700 transition duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
           >
             -
           </button>
-          <span className="mx-2">{item.quantity}</span>
+          {/* Quantity Display */}
+          <span className="mx-2">{quantity}</span>
+          {/* Increase Quantity Button */}
           <button
-            onClick={() => onQuantityChange(item.id, item.quantity + 1)}
+            onClick={() => onQuantityChange?.(id, quantity + 1)} // Optional chaining for callback
             className="bg-purple-600 text-white px-2 py-1 rounded-md shadow hover:bg-purple-700 transition duration-200 ease-in-out"
           >
             +
           </button>
+          {/* Remove Button */}
           <button
-            onClick={() => onRemove(item.id)}
+            onClick={() => onRemove?.(id)} // Optional chaining for callback
             className="ml-4 bg-red-600 text-white px-4 py-2 rounded-md shadow hover:bg-red-700 transition duration-200 ease-in-out"
           >
             Remove
