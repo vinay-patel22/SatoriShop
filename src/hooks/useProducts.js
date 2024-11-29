@@ -6,12 +6,7 @@ const useProducts = (selectedCategory) => {
   const [filteredItems, setFilteredItems] = useState([]);
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
-  const [query, setQuery] = useState("");
-  const [hasSearched, setHasSearched] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(9); // Adjust page size here if needed
 
-  // Fetch products from both APIs
   useEffect(() => {
     const fetchProducts = async () => {
       setStatus("loading");
@@ -22,44 +17,57 @@ const useProducts = (selectedCategory) => {
           (res) => res.json()
         );
 
-        const [backendResponse, onlineResponse] = await Promise.all([
+        // Use Promise.allSettled to wait for both promises to settle
+        const [backendResult, onlineResult] = await Promise.allSettled([
           backendPromise,
           onlinePromise,
         ]);
 
-        // Format Free API products
-        const formattedOnlineResponse = onlineResponse.map((product) => ({
-          id: product.id,
-          name: product.title,
-          price: product.price,
-          description: product.description,
-          image: product.image,
-          rating: product.rating?.rate || 0,
-          count: product.rating?.count || 0,
-        }));
+        let combinedData = [];
 
-        // Format Backend API products
-        const formattedBackendResponse = backendResponse.data.map(
-          (product) => ({
+        // Check the results and process accordingly
+        if (backendResult.status === "fulfilled") {
+          const backendResponse = backendResult.value.data;
+          // Format and add backend data to combinedData
+          const formattedBackendResponse = backendResponse.map((product) => ({
             id: product._id,
             name: product.name,
             price: product.price,
             description: product.description,
-            image: product.images[0] || "", // Use first image
+            image: product.images[0] || "",
             rating: product.rating || 0,
             count: 0, // Backend doesn't have count, default to 0
-          })
-        );
+          }));
+          combinedData = [...combinedData, ...formattedBackendResponse];
+        } else {
+          console.error("Backend API failed:", backendResult.reason);
+        }
 
-        // Combine both sets of products
-        const combinedData = [
-          ...formattedBackendResponse,
-          ...formattedOnlineResponse,
-        ];
+        if (onlineResult.status === "fulfilled") {
+          const onlineResponse = onlineResult.value;
+          // Format and add online data to combinedData
+          const formattedOnlineResponse = onlineResponse.map((product) => ({
+            id: product.id,
+            name: product.title,
+            price: product.price,
+            description: product.description,
+            image: product.image,
+            rating: product.rating?.rate || 0,
+            count: product.rating?.count || 0,
+          }));
+          combinedData = [...combinedData, ...formattedOnlineResponse];
+        } else {
+          console.error("Online API failed:", onlineResult.reason);
+        }
 
-        setItems(combinedData);
-        setFilteredItems(combinedData);
-        setStatus("succeeded");
+        if (combinedData.length > 0) {
+          setItems(combinedData);
+          setFilteredItems(combinedData);
+          setStatus("succeeded");
+        } else {
+          setStatus("failed");
+          setError("Both API calls failed. Please try again later.");
+        }
       } catch (err) {
         setStatus("failed");
         setError(err.message);
@@ -69,61 +77,11 @@ const useProducts = (selectedCategory) => {
     fetchProducts();
   }, []);
 
-  // Handle pagination logic
-  const paginatedItems = filteredItems.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-
-  // Filter and search logic
-  const handleSearch = (searchQuery) => {
-    setQuery(searchQuery);
-    setHasSearched(true);
-    if (searchQuery) {
-      const filtered = items.filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredItems(filtered);
-    } else {
-      setFilteredItems(items);
-    }
-  };
-
-  // Sorting logic
-  const handleSort = (sortOption) => {
-    let sortedItems = [...filteredItems];
-    if (sortOption === "asc") {
-      sortedItems.sort((a, b) => a.price - b.price);
-    } else if (sortOption === "desc") {
-      sortedItems.sort((a, b) => b.price - a.price);
-    }
-    setFilteredItems(sortedItems);
-  };
-
-  const handleReset = () => {
-    setFilteredItems(items);
-    setQuery("");
-    setHasSearched(false);
-  };
-
-  const handlePageChange = (page) => setCurrentPage(page);
-
   return {
     items,
     filteredItems,
     status,
     error,
-    query,
-    hasSearched,
-    currentPage,
-    paginatedItems,
-    totalPages,
-    handleSearch,
-    handleSort,
-    handleReset,
-    handlePageChange,
   };
 };
 
